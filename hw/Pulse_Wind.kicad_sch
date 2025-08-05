@@ -5128,16 +5128,16 @@
 	)
 	(symbol
 		(lib_id "Device:Speaker")
-		(at 245.11 105.41 0)
+		(at 245.11 107.95 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "6f9c8ff6-ca3e-4858-a73e-84b977c5d6db")
 		(property "Reference" "LS1"
-			(at 250.19 105.4099 0)
+			(at 250.19 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5146,7 +5146,7 @@
 			)
 		)
 		(property "Value" "Speaker"
-			(at 250.19 107.9499 0)
+			(at 250.19 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5155,7 +5155,7 @@
 			)
 		)
 		(property "Footprint" "Pulse_footprints:Pads_P2.00"
-			(at 245.11 110.49 0)
+			(at 245.11 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5173,7 +5173,7 @@
 			)
 		)
 		(property "Description" "Speaker"
-			(at 245.11 105.41 0)
+			(at 245.11 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6259,8 +6259,8 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "VIN"
-			(at 92.456 88.9 90)
+		(property "Value" "+3V3"
+			(at 93.472 88.646 90)
 			(effects
 				(font
 					(size 1.27 1.27)
