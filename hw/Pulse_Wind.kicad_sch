@@ -3044,10 +3044,6 @@
 		(uuid "53ec3a45-f100-4397-bbd2-d53694ef2cb7")
 	)
 	(no_connect
-		(at 185.42 52.07)
-		(uuid "64cc69c1-92db-44a0-86a0-5a3391c0a75c")
-	)
-	(no_connect
 		(at 110.49 73.66)
 		(uuid "6f083bb6-fec1-465e-b3b9-404dc15b5a1f")
 	)
@@ -6776,6 +6772,73 @@
 			(project "Pulse_Wind"
 				(path "/49429a57-8612-48d8-83b1-7633b6997710"
 					(reference "#PWR024")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 185.42 52.07 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e606d433-ece4-4eaa-96de-fe672e3abe54")
+		(property "Reference" "#PWR032"
+			(at 191.77 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 190.5 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 185.42 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 185.42 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 185.42 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "70fadac1-0ed9-459b-a4d2-e2dbf073cbc3")
+		)
+		(instances
+			(project "Pulse_Wind"
+				(path "/49429a57-8612-48d8-83b1-7633b6997710"
+					(reference "#PWR032")
 					(unit 1)
 				)
 			)
