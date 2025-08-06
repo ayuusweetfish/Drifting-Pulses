@@ -2976,6 +2976,12 @@
 		(uuid "6ff6ef2a-ed69-465d-818f-75d4a3598467")
 	)
 	(junction
+		(at 175.26 36.83)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "78f55462-f6ef-435b-a742-b5c8678d833d")
+	)
+	(junction
 		(at 205.74 113.03)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3016,10 +3022,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "d69e0068-8ba9-4b2f-ab27-2864737f3a0c")
-	)
-	(no_connect
-		(at 160.02 49.53)
-		(uuid "1d98df5e-9464-45c5-934a-f688b1297ac4")
 	)
 	(no_connect
 		(at 185.42 49.53)
@@ -3072,6 +3074,10 @@
 	(no_connect
 		(at 185.42 44.45)
 		(uuid "ec691d7f-8a6d-444e-96f2-1c83bedee2de")
+	)
+	(no_connect
+		(at 160.02 46.99)
+		(uuid "fc2c5c20-b335-4e8d-a2c4-0af9307c3385")
 	)
 	(wire
 		(pts
@@ -3215,16 +3221,6 @@
 	)
 	(wire
 		(pts
-			(xy 172.72 36.83) (xy 175.26 36.83)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "68a9d436-66bd-4aba-9fa7-df70d942962e")
-	)
-	(wire
-		(pts
 			(xy 219.71 105.41) (xy 226.06 105.41)
 		)
 		(stroke
@@ -3302,6 +3298,16 @@
 			(type default)
 		)
 		(uuid "8ab0960d-0d8f-4eeb-ae72-79b78ff831c8")
+	)
+	(wire
+		(pts
+			(xy 177.8 36.83) (xy 175.26 36.83)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9438d0d0-91cd-4dcf-b045-81f16cff051e")
 	)
 	(wire
 		(pts
@@ -3584,7 +3590,7 @@
 		(uuid "ada60160-c5c6-43f8-96d2-a2fb47a13c8a")
 	)
 	(label "IMU_SDA"
-		(at 160.02 46.99 180)
+		(at 160.02 49.53 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4056,6 +4062,73 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:C")
+		(at 181.61 36.83 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "1b890fdd-c7ec-46f5-a4c0-49a329c5574e")
+		(property "Reference" "C3"
+			(at 181.61 30.48 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "100n"
+			(at 181.61 33.02 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+			(at 185.42 35.8648 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 181.61 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 181.61 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "fda72ac1-01e9-4b9d-8fe8-0f3820fd0239")
+		)
+		(pin "2"
+			(uuid "e701a1a2-ece1-42a2-a1e6-a65cb079d6fa")
+		)
+		(instances
+			(project "Pulse_Wind"
+				(path "/49429a57-8612-48d8-83b1-7633b6997710"
+					(reference "C3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 167.64 76.2 90)
 		(unit 1)
@@ -4130,7 +4203,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "267e2b81-1c06-458b-8f7e-f9e539de23a6")
-		(property "Reference" "C7"
+		(property "Reference" "C8"
 			(at 34.798 71.12 0)
 			(effects
 				(font
@@ -4184,7 +4257,7 @@
 		(instances
 			(project "Pulse_Wind"
 				(path "/49429a57-8612-48d8-83b1-7633b6997710"
-					(reference "C7")
+					(reference "C8")
 					(unit 1)
 				)
 			)
@@ -4454,6 +4527,73 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 185.42 36.83 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "3a84a170-abe4-4412-bb27-dc25e57af8a1")
+		(property "Reference" "#PWR031"
+			(at 191.77 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 190.5 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 185.42 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 185.42 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 185.42 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "54bbe174-1680-4749-9f9d-5cd6031e3836")
+		)
+		(instances
+			(project "Pulse_Wind"
+				(path "/49429a57-8612-48d8-83b1-7633b6997710"
+					(reference "#PWR031")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 166.37 107.95 90)
 		(unit 1)
@@ -4462,7 +4602,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3afd4728-1a52-4b8e-add0-c249abaccfd6")
-		(property "Reference" "C3"
+		(property "Reference" "C4"
 			(at 163.322 104.14 90)
 			(effects
 				(font
@@ -4514,7 +4654,7 @@
 		(instances
 			(project ""
 				(path "/49429a57-8612-48d8-83b1-7633b6997710"
-					(reference "C3")
+					(reference "C4")
 					(unit 1)
 				)
 			)
@@ -4730,7 +4870,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "59a5c9a0-61e5-4370-97fe-752b5124994c")
-		(property "Reference" "C8"
+		(property "Reference" "C9"
 			(at 62.738 71.12 0)
 			(effects
 				(font
@@ -4784,7 +4924,7 @@
 		(instances
 			(project "Pulse_Wind"
 				(path "/49429a57-8612-48d8-83b1-7633b6997710"
-					(reference "C8")
+					(reference "C9")
 					(unit 1)
 				)
 			)
@@ -5001,7 +5141,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6c0eee30-e07d-48d0-beca-69ea64c9ea0a")
-		(property "Reference" "C4"
+		(property "Reference" "C5"
 			(at 195.072 116.84 90)
 			(effects
 				(font
@@ -5053,7 +5193,7 @@
 		(instances
 			(project "Pulse_Wind"
 				(path "/49429a57-8612-48d8-83b1-7633b6997710"
-					(reference "C4")
+					(reference "C5")
 					(unit 1)
 				)
 			)
@@ -5345,7 +5485,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "7afce9ad-a9ee-41d6-b62d-78864add4109")
-		(property "Reference" "C5"
+		(property "Reference" "C6"
 			(at 183.642 99.06 90)
 			(effects
 				(font
@@ -5397,7 +5537,7 @@
 		(instances
 			(project "Pulse_Wind"
 				(path "/49429a57-8612-48d8-83b1-7633b6997710"
-					(reference "C5")
+					(reference "C6")
 					(unit 1)
 				)
 			)
@@ -6094,7 +6234,7 @@
 			)
 		)
 		(property "Value" "+3V3"
-			(at 172.72 32.766 0)
+			(at 173.736 32.766 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6148,10 +6288,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "bdf711d6-14ad-4c38-b35f-05770ac88a2a")
 		(property "Reference" "U2"
-			(at 177.4033 34.29 0)
+			(at 179.832 56.642 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6160,7 +6299,7 @@
 			)
 		)
 		(property "Value" "SC7A20"
-			(at 177.4033 36.83 0)
+			(at 179.832 59.182 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6441,6 +6580,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+3V3")
+		(at 175.26 36.83 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "da7bcc65-33a4-4fcf-a447-b6ff93a6db6e")
+		(property "Reference" "#PWR05"
+			(at 175.26 40.64 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 175.26 32.766 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 175.26 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 175.26 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 175.26 36.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b21134cf-3f5b-4f8d-950b-3335cc5c0b5b")
+		)
+		(instances
+			(project "Pulse_Wind"
+				(path "/49429a57-8612-48d8-83b1-7633b6997710"
+					(reference "#PWR05")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Regulator_Linear:MCP1703Ax-330xxTT")
 		(at 52.07 68.58 0)
 		(unit 1)
@@ -6652,7 +6857,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ebca716d-d592-417b-be1e-82d8c6b9675a")
-		(property "Reference" "C6"
+		(property "Reference" "C7"
 			(at 228.346 108.712 90)
 			(effects
 				(font
@@ -6704,7 +6909,7 @@
 		(instances
 			(project "Pulse_Wind"
 				(path "/49429a57-8612-48d8-83b1-7633b6997710"
-					(reference "C6")
+					(reference "C7")
 					(unit 1)
 				)
 			)
