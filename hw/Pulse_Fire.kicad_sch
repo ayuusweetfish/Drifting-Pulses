@@ -3965,10 +3965,6 @@
 		(uuid "7c8447a8-e436-4558-8b50-4bc447890e49")
 	)
 	(no_connect
-		(at 93.98 73.66)
-		(uuid "828ac3ec-7151-4199-84b4-cc5cc66dc881")
-	)
-	(no_connect
 		(at 121.92 73.66)
 		(uuid "addd4465-e31f-44b5-8d69-02df44009b70")
 	)
@@ -4266,6 +4262,16 @@
 	)
 	(wire
 		(pts
+			(xy 177.8 78.74) (xy 177.8 82.55)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a2b608a3-773a-40fd-9f24-2a9e4116ae67")
+	)
+	(wire
+		(pts
 			(xy 173.99 101.6) (xy 173.99 95.25)
 		)
 		(stroke
@@ -4554,6 +4560,16 @@
 		)
 		(uuid "8f1f44ec-f972-45d0-854a-a74ea641dca9")
 	)
+	(label "AUDIO_SD"
+		(at 93.98 73.66 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "9c95aeb4-aa2a-47e4-a830-f2e549d49e6a")
+	)
 	(label "IMU_CS"
 		(at 105.41 54.61 90)
 		(effects
@@ -4603,6 +4619,16 @@
 			(justify right bottom)
 		)
 		(uuid "be6970b3-eb2c-4b06-b86e-0250ffbc784f")
+	)
+	(label "AUDIO_SD"
+		(at 177.8 78.74 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "c1a035f2-71c8-439a-8781-1ae57faab7ba")
 	)
 	(label "AUDIO_OUT"
 		(at 142.24 90.17 180)
@@ -5258,7 +5284,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 185.42 127.508 90)
 			(effects
 				(font
@@ -5494,70 +5520,6 @@
 			(project "Pulse_Wind"
 				(path "/49429a57-8612-48d8-83b1-7633b6997710"
 					(reference "#PWR028")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3V3")
-		(at 177.8 82.55 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "2d92efa1-a123-4a73-878e-ccbd209a649e")
-		(property "Reference" "#PWR030"
-			(at 177.8 86.36 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3V3"
-			(at 177.8 78.232 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 177.8 82.55 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 177.8 82.55 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 177.8 82.55 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "ce6bf5dd-2883-47d1-8fa8-33938464918e")
-		)
-		(instances
-			(project "Pulse_Wind"
-				(path "/49429a57-8612-48d8-83b1-7633b6997710"
-					(reference "#PWR030")
 					(unit 1)
 				)
 			)
@@ -7085,7 +7047,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 185.42 132.588 90)
 			(effects
 				(font
@@ -7955,7 +7917,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 185.42 137.668 90)
 			(effects
 				(font
