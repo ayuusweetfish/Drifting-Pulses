@@ -1,14 +1,14 @@
-unit_x = 22;
-unit_y = 22;
-n = 4;
+unit_x = 21.8;
+unit_y = 22.8;
+n = 3;
 
 unit_pitch = 100;
 wire_slot = 8;
 block_w = 5;
-side_slot_ext = 50;
+side_slot_ext = 30;
 
 shell_thickness = 1;
-shell_front_height = 36;
+shell_front_height = 30;
 shell_front_drop = 6;
 shell_back_height = 12;
 block_height = 4;
@@ -60,7 +60,7 @@ module full_model() union() {
 
 intersection() {
   full_model();
-  translate([-shell_thickness, 0, -shell_thickness])
+  translate([-shell_thickness, 0.001, -shell_thickness])
     cube([full_x + shell_thickness * 2, full_y + shell_thickness, shell_back_height]);
 }
 
