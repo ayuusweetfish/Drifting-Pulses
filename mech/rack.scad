@@ -44,11 +44,11 @@ module shell_punched() difference() {
   for (i = [0:n - 1]) {
     translate([unit0_x + unit_x / 2 + unit_pitch * i, 0, punch_y])
     rotate(90, [1, 0, 0])
-      cylinder(shell_thickness, punch_r, punch_r);
+      cylinder(shell_thickness, punch_r, punch_r, $fn = 24);
   }
 }
 
-union() {
+module full_model() union() {
   shell_punched();
   for (i = [0:n - 1]) {
     translate([unit0_x - block_w + unit_pitch * i, 0, 0])
@@ -57,3 +57,17 @@ union() {
       cube([block_w, full_y - wire_slot, block_height]);
   }
 }
+
+intersection() {
+  full_model();
+  translate([-shell_thickness, 0, -shell_thickness])
+    cube([full_x + shell_thickness * 2, full_y + shell_thickness, shell_back_height]);
+}
+
+translate([0, -5 - shell_front_height - shell_front_drop, 0])
+  rotate(90, [1, 0, 0])
+    intersection() {
+      full_model();
+      translate([-shell_thickness, -shell_thickness, -shell_front_drop])
+        cube([full_x + shell_thickness * 2, shell_thickness, shell_front_height]);
+    }
