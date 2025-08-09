@@ -4,7 +4,7 @@ n = 4;
 
 unit_pitch = 100;
 wire_slot = 8;
-side_block_ext = 5;
+block_w = 5;
 side_slot_ext = 50;
 
 shell_thickness = 1;
@@ -16,7 +16,7 @@ block_height = 4;
 punch_r = 3;
 punch_y = 4;
 
-full_x = (side_slot_ext + side_block_ext) * 2 + unit_pitch * (n - 1) + unit_x;
+full_x = (side_slot_ext + block_w) * 2 + unit_pitch * (n - 1) + unit_x;
 full_y = unit_y;
 
 module shell() union() {
@@ -37,7 +37,7 @@ module shell() union() {
     cube([full_x + t * 2, t, shell_front_height]);
 }
 
-unit0_x = side_slot_ext + side_block_ext;
+unit0_x = side_slot_ext + block_w;
 
 module shell_punched() difference() {
   shell();
@@ -50,12 +50,10 @@ module shell_punched() difference() {
 
 union() {
   shell_punched();
-  for (i = [0:n - 2]) {
+  for (i = [0:n - 1]) {
+    translate([unit0_x - block_w + unit_pitch * i, 0, 0])
+      cube([block_w, full_y - wire_slot, block_height]);
     translate([unit0_x + unit_x + unit_pitch * i, 0, 0])
-      cube([unit_pitch - unit_x, full_y - wire_slot, block_height]);
+      cube([block_w, full_y - wire_slot, block_height]);
   }
-  translate([side_slot_ext, 0, 0])
-    cube([side_block_ext, full_y - wire_slot, block_height]);
-  translate([unit0_x + unit_pitch * (n - 1) + unit_x, 0, 0])
-    cube([side_block_ext, full_y - wire_slot, block_height]);
 }
