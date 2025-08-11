@@ -83,8 +83,8 @@ int main()
       .Mode = SPI_MODE_MASTER,
       .Direction = SPI_DIRECTION_1LINE,
       .DataSize = SPI_DATASIZE_8BIT,
-      .CLKPolarity = SPI_POLARITY_LOW,  // CPOL = 0
-      .CLKPhase = SPI_PHASE_1EDGE,      // CPHA = 0
+      .CLKPolarity = SPI_POLARITY_HIGH, // CPOL = 1
+      .CLKPhase = SPI_PHASE_2EDGE,      // CPHA = 1 -- SC7A20 requires mode 3
       .NSS = SPI_NSS_SOFT,
       .BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4, // 6 MHz
       .FirstBit = SPI_FIRSTBIT_MSB,
@@ -102,20 +102,28 @@ int main()
     .Alternate = 10,  // PA1 = SPI1_MOSI, PA2 = SPI1_SCK
   });
 
-  delay_us(1000);
-  GPIOA->BSRR = (1 << 3) << 16;
-  // CTRL_REG4: SIM = 1
-  HAL_SPI_Transmit(&spi1, (uint8_t []){0x23, 0b00000001}, 2, HAL_MAX_DELAY);
-  GPIOA->BSRR = (1 << 3);
-  delay_us(1000);
+  void imu_write(uint8_t reg, uint8_t byte)
+  {
+    GPIOA->BSRR = (1 << 3) << 16;
+    HAL_SPI_Transmit(&spi1, (uint8_t []){0x40 | reg, byte}, 2, HAL_MAX_DELAY);
+    GPIOA->BSRR = (1 << 3);
+  }
+  void imu_read(uint8_t reg, uint8_t *data, size_t n)
+  {
+    GPIOA->BSRR = (1 << 3) << 16;
+    HAL_SPI_Transmit(&spi1, (uint8_t []){0xC0 | reg}, 1, HAL_MAX_DELAY);
+    HAL_SPI_Receive(&spi1, data, n, HAL_MAX_DELAY);
+    GPIOA->BSRR = (1 << 3);
+  }
 
-  uint8_t b = 0xaa;
+  delay_us(500);
+  imu_write(0x23, 0b00000001);  // CTRL_REG4: SIM = 1
+  delay_us(500);
+
 while (1) {
-  GPIOA->BSRR = (1 << 3) << 16;
-  HAL_SPI_Transmit(&spi1, (uint8_t []){0x80 | 0x0F}, 1, HAL_MAX_DELAY);
-  HAL_SPI_Receive(&spi1, &b, 1, HAL_MAX_DELAY);
-  GPIOA->BSRR = (1 << 3);
-  printf("WHO_AM_I = %u\n", (unsigned)b);
+  uint8_t b = 0xaa;
+  imu_read(0x0F, &b, 1);
+  printf("WHO_AM_I = %02x\n", (unsigned)b);
   delay_us(1000000);
 }
 
