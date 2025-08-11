@@ -27,7 +27,7 @@ static void spin_delay(uint32_t cycles)
 // __attribute__ ((section(".RamFunc")))
 static inline void delay_us(uint32_t us)
 {
-  spin_delay(us * 8);
+  spin_delay(us * 24);
 }
 
 static SPI_HandleTypeDef spi1;
@@ -51,8 +51,9 @@ int main()
   // ============ Clocks ============ //
 {
   HAL_RCC_OscConfig(&(RCC_OscInitTypeDef){
-    .OscillatorType = RCC_OSCILLATORTYPE_HSE,
+    .OscillatorType = RCC_OSCILLATORTYPE_HSI,
     .HSIState = RCC_HSI_ON,
+    .HSICalibrationValue = RCC_HSICALIBRATION_24MHz,
   });
 }
 
@@ -72,7 +73,10 @@ int main()
 
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
+while (0) {
   printf("sysclk = %lu Hz\n", HAL_RCC_GetSysClockFreq());
+  delay_us(1000000);
+}
 
   // ============ LED ============ //
 {
@@ -182,7 +186,8 @@ int main()
   void dma_tx_cplt()
   {
     refill_buffer(audio_buf + N_HALF_BUF);
-    if (++count == 10) { printf("refill\n"); count = 0; }
+    // 24 kHz / 1024 samples
+    if (++count == 24) { printf("refill\n"); count = 0; }
   }
   HAL_TIM_PWM_Start_DMA(&tim17, TIM_CHANNEL_1, (void *)audio_buf, N_HALF_BUF * 2);
   // Overwrite callbacks and handle the events ourselves
