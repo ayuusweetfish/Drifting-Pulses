@@ -64,18 +64,61 @@ int main()
 
   printf("sysclk = %lu Hz\n", HAL_RCC_GetSysClockFreq());
 
-  // ============ ACT LED ============ //
+  // ============ LED ============ //
 {
-  GPIOA->BSRR = (1 << 4) << 16;
   HAL_GPIO_Init(GPIOA, &(GPIO_InitTypeDef){
-    .Mode = GPIO_MODE_OUTPUT_PP,
-    .Pin = (1 << 4),
-    .Pull = GPIO_NOPULL,
-    .Speed = GPIO_SPEED_FREQ_LOW,
+    .Mode = GPIO_MODE_AF_PP,
+    .Pin = (1 << 4) | (1 << 5),
+    .Alternate = 13,  // PA4 = TIM3_CH3, PA5 = TIM3_CH2
+    .Speed = GPIO_SPEED_FREQ_HIGH,
   });
+  HAL_GPIO_Init(GPIOA, &(GPIO_InitTypeDef){
+    .Mode = GPIO_MODE_AF_PP,
+    .Pin = (1 << 6),
+    .Alternate = 1,   // PA6 = TIM3_CH1
+    .Speed = GPIO_SPEED_FREQ_HIGH,
+  });
+
+  __HAL_RCC_TIM3_CLK_ENABLE();
+  TIM_HandleTypeDef tim3 = {
+    .Instance = TIM3,
+    .Init = {
+      .Prescaler = 1 - 1,   // 24 MHz
+      .CounterMode = TIM_COUNTERMODE_DOWN,
+      .Period = 4096,       // 6 kHz
+      .ClockDivision = TIM_CLOCKDIVISION_DIV1,
+    },
+  };
+  HAL_TIM_PWM_Init(&tim3);
+  HAL_TIM_PWM_ConfigChannel(&tim3, &(TIM_OC_InitTypeDef){
+    .OCMode = TIM_OCMODE_PWM1,
+    .OCPolarity = TIM_OCPOLARITY_HIGH,
+  }, TIM_CHANNEL_1);
+  HAL_TIM_PWM_ConfigChannel(&tim3, &(TIM_OC_InitTypeDef){
+    .OCMode = TIM_OCMODE_PWM1,
+    .OCPolarity = TIM_OCPOLARITY_HIGH,
+  }, TIM_CHANNEL_2);
+  HAL_TIM_PWM_ConfigChannel(&tim3, &(TIM_OC_InitTypeDef){
+    .OCMode = TIM_OCMODE_PWM1,
+    .OCPolarity = TIM_OCPOLARITY_HIGH,
+  }, TIM_CHANNEL_3);
+  TIM3->CCR1 = 4096;
+  TIM3->CCR2 = 4096;
+  TIM3->CCR3 = 4096;
+  HAL_TIM_PWM_Start(&tim3, TIM_CHANNEL_1);
+  HAL_TIM_PWM_Start(&tim3, TIM_CHANNEL_2);
+  HAL_TIM_PWM_Start(&tim3, TIM_CHANNEL_3);
+
+  while (1) {
+    for (int i = 0; i < 4096; i += 8) {
+      TIM3->CCR3 = i;
+      HAL_Delay(4);
+    }
+  }
 }
 
-  // ============ SPI1: IMU SC7A20 ============ //
+  // ============ IMU SC7A20 ============ //
+{
   __HAL_RCC_SPI1_CLK_ENABLE();
   spi1 = (SPI_HandleTypeDef){
     .Instance = SPI1,
@@ -101,6 +144,7 @@ int main()
     .Pin = (1 << 1) | (1 << 2),
     .Alternate = 10,  // PA1 = SPI1_MOSI, PA2 = SPI1_SCK
   });
+}
 
   void imu_write(uint8_t reg, uint8_t byte)
   {
@@ -137,23 +181,20 @@ int main()
   imu_write(0x24, 0b01000000);  // CTRL_REG5: FIFO_EN = 1
   imu_write(0x2E, 0b11000000);  // FIFO_CTRL_REG: FM = FIFO mode
 
-  int total = 0;
   while (1) {
     uint8_t count;
     imu_read(0x2F, &count, 1); count &= 0x1F;
     uint8_t a[7];   // SC7A20 asks for a 7-byte read, unlike ST's 6-byte
     for (int i = 0; i < count; i++) {
       imu_read(0x27, a, 7);
-    }
-    uint16_t x = ((uint16_t)a[2] << 8) | a[1];
-    uint16_t y = ((uint16_t)a[4] << 8) | a[3];
-    uint16_t z = ((uint16_t)a[6] << 8) | a[5];
-    if ((total += count) >= 200) {
-      printf("!! %d %04x %04x %04x\n", (int)count, (int)x, (int)y, (int)z);
-      total -= 200;
+      uint16_t x = ((uint16_t)a[2] << 8) | a[1];
+      uint16_t y = ((uint16_t)a[4] << 8) | a[3];
+      uint16_t z = ((uint16_t)a[6] << 8) | a[5];
     }
     HAL_Delay(100);
   }
+
+  // ============ LEDS ============ //
 
   while (1) { printf("!!\n"); delay_us(1000000); }
 }
