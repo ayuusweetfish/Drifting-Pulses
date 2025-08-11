@@ -139,20 +139,20 @@ int main()
 
   int total = 0;
   while (1) {
-    // https://github.com/STMicroelectronics/STMems_Standard_C_drivers/blob/8e3777b/lis3dh_STdC/examples/lis3dh_multi_read_fifo.c#L164
-    // https://github.com/STMicroelectronics/lis3dh-pid/blob/4cd1e4a/lis3dh_reg.c#L2111
-    uint8_t s;
-    imu_read(0x2F, &s, 1);
     uint8_t count;
     imu_read(0x2F, &count, 1); count &= 0x1F;
-    uint16_t a[3] = {0, 0, 0};
+    uint8_t a[7];   // SC7A20 asks for a 7-byte read, unlike ST's 6-byte
     for (int i = 0; i < count; i++) {
-      imu_read(0x28, (uint8_t *)&a[0], 6);
+      imu_read(0x27, a, 7);
     }
-    if ((total += count + 1) >= 200 * 4) {
-      printf("!! %02x %d %04x %04x %04x\n", (int)s, (int)count, (int)a[0], (int)a[1], (int)a[2]);
-      total -= 200 * 4;
+    uint16_t x = ((uint16_t)a[2] << 8) | a[1];
+    uint16_t y = ((uint16_t)a[4] << 8) | a[3];
+    uint16_t z = ((uint16_t)a[6] << 8) | a[5];
+    if ((total += count) >= 200) {
+      printf("!! %d %04x %04x %04x\n", (int)count, (int)x, (int)y, (int)z);
+      total -= 200;
     }
+    HAL_Delay(100);
   }
 
   while (1) { printf("!!\n"); delay_us(1000000); }
