@@ -104,28 +104,56 @@ int main()
 
   void imu_write(uint8_t reg, uint8_t byte)
   {
+    delay_us(2);
     GPIOA->BSRR = (1 << 3) << 16;
-    HAL_SPI_Transmit(&spi1, (uint8_t []){0x40 | reg, byte}, 2, HAL_MAX_DELAY);
+    HAL_SPI_Transmit(&spi1, (uint8_t []){reg, byte}, 2, HAL_MAX_DELAY);
     GPIOA->BSRR = (1 << 3);
   }
   void imu_read(uint8_t reg, uint8_t *data, size_t n)
   {
+    delay_us(2);
     GPIOA->BSRR = (1 << 3) << 16;
     HAL_SPI_Transmit(&spi1, (uint8_t []){0xC0 | reg}, 1, HAL_MAX_DELAY);
     HAL_SPI_Receive(&spi1, data, n, HAL_MAX_DELAY);
     GPIOA->BSRR = (1 << 3);
   }
 
-  delay_us(500);
-  imu_write(0x23, 0b00000001);  // CTRL_REG4: SIM = 1
-  delay_us(500);
+  imu_write(0x24, 0b10000000);  // CTRL_REG5: BOOT = 1
+  HAL_Delay(10);
 
-while (1) {
-  uint8_t b = 0xaa;
-  imu_read(0x0F, &b, 1);
-  printf("WHO_AM_I = %02x\n", (unsigned)b);
-  delay_us(1000000);
-}
+  imu_write(0x23, 0b00000001);  // CTRL_REG4: SIM = 1
+
+  // Check IC identifier
+  while (1) {
+    uint8_t b;
+    imu_read(0x0F, &b, 1);
+    printf("WHO_AM_I = %02x\n", (unsigned)b);
+    if (b == 0x11) break;
+    HAL_Delay(1000);
+  }
+
+  imu_write(0x20, 0b01010111);  // CTRL_REG1: ODR = 100 Hz, Z/Y/Xen = 1
+  imu_write(0x23, 0b10001001);  // CTRL_REG4: BDU = 1, HR = 1
+  imu_write(0x24, 0b01000000);  // CTRL_REG5: FIFO_EN = 1
+  imu_write(0x2E, 0b11000000);  // FIFO_CTRL_REG: FM = FIFO mode
+
+  int total = 0;
+  while (1) {
+    // https://github.com/STMicroelectronics/STMems_Standard_C_drivers/blob/8e3777b/lis3dh_STdC/examples/lis3dh_multi_read_fifo.c#L164
+    // https://github.com/STMicroelectronics/lis3dh-pid/blob/4cd1e4a/lis3dh_reg.c#L2111
+    uint8_t s;
+    imu_read(0x2F, &s, 1);
+    uint8_t count;
+    imu_read(0x2F, &count, 1); count &= 0x1F;
+    uint16_t a[3] = {0, 0, 0};
+    for (int i = 0; i < count; i++) {
+      imu_read(0x28, (uint8_t *)&a[0], 6);
+    }
+    if ((total += count + 1) >= 200 * 4) {
+      printf("!! %02x %d %04x %04x %04x\n", (int)s, (int)count, (int)a[0], (int)a[1], (int)a[2]);
+      total -= 200 * 4;
+    }
+  }
 
   while (1) { printf("!!\n"); delay_us(1000000); }
 }
