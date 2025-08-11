@@ -16,7 +16,7 @@ BUILD_DIR		= build
 #   PY32F003x4, PY32F003x6, PY32F003x8,
 #   PY32F030x6, PY32F030x8, 
 #   PY32F072xB
-MCU_TYPE		= PY32F003x4
+MCU_TYPE		= PY32F003x6
 
 ##### Options #####
 
@@ -215,7 +215,7 @@ endif
 
 print-uid:
 ifeq ($(FLASH_PROGRM),pyocd)
-	$(PYOCD_EXE) cmd -c 'read8 0x1fff0e00 16' -t $(PYOCD_DEVICE) --config ./debug/pyocd.yaml
+	$(PYOCD_EXE) cmd -c 'read8 0x1fff0e00 16' -t $(PYOCD_DEVICE) --config $(TOP)/debug/pyocd.yaml
 endif
 
 debug:
