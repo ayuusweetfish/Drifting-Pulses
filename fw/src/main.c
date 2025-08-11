@@ -38,8 +38,37 @@ static uint16_t audio_buf[N_HALF_BUF * 2];
 
 static void refill_buffer(uint16_t *buf)
 {
+  // 64-sample cycle = 366 Hz tone
+if (0) {
   for (int i = 0; i < N_HALF_BUF; i++)
-    buf[i] = (i % 64 < 32) ? 0x10 : 0;
+    buf[i] = (i % 64 < 32) ? 0x80 : 0;
+} else {
+  static uint16_t sine_table[64] = {
+/*
+from math import *
+print(','.join('%d' % round(511.5 + 512 * (0.7 * sin(i / 64 * pi * 2))) for i in range(64)))
+*/
+512,547,581,616,649,680,711,739,765,789,809,828,843,854,863,868,870,868,863,854,843,828,809,789,765,739,711,680,649,616,581,547,512,476,442,407,374,343,312,284,258,234,214,195,180,169,160,155,153,155,160,169,180,195,214,234,258,284,312,343,374,407,442,476
+  };
+  static uint16_t tri_table[64] = {
+/*
+from math import *
+print(','.join('%d' % round(511.5 + 512 * 0.7 * (1 - 4 * abs(0.5 - i / 64))) for i in range(64)))
+*/
+153,176,198,220,243,265,288,310,332,355,377,400,422,444,467,489,512,534,556,579,601,624,646,668,691,713,736,758,780,803,825,848,870,848,825,803,780,758,736,713,691,668,646,624,601,579,556,534,512,489,467,444,422,400,377,355,332,310,288,265,243,220,198,176
+  };
+  static uint32_t phase = 0;
+  static uint32_t n_cycles = 0;
+  for (int i = 0; i < N_HALF_BUF; i++) {
+    buf[i] = (n_cycles < 366 ? sine_table : tri_table)[phase];
+    phase += 2;
+    if (phase >= 64) {
+      phase -= 64;
+      n_cycles++;
+      if (n_cycles == 732) n_cycles = 0;
+    }
+  }
+}
 }
 
 #pragma GCC push_options
