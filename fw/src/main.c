@@ -30,6 +30,8 @@ static inline void delay_us(uint32_t us)
   spin_delay(us * 8);
 }
 
+static SPI_HandleTypeDef spi1;
+
 #pragma GCC push_options
 #pragma GCC optimize("O3")
 int main()
@@ -62,11 +64,9 @@ int main()
 
   printf("sysclk = %lu Hz\n", HAL_RCC_GetSysClockFreq());
 
-  while (1) { printf("!!\n"); delay_us(1000000); }
-
   // ============ ACT LED ============ //
 {
-  GPIOA->BSRR = (1 << 4);
+  GPIOA->BSRR = (1 << 4) << 16;
   HAL_GPIO_Init(GPIOA, &(GPIO_InitTypeDef){
     .Mode = GPIO_MODE_OUTPUT_PP,
     .Pin = (1 << 4),
@@ -74,6 +74,52 @@ int main()
     .Speed = GPIO_SPEED_FREQ_LOW,
   });
 }
+
+  // ============ SPI1: IMU SC7A20 ============ //
+  __HAL_RCC_SPI1_CLK_ENABLE();
+  spi1 = (SPI_HandleTypeDef){
+    .Instance = SPI1,
+    .Init = {
+      .Mode = SPI_MODE_MASTER,
+      .Direction = SPI_DIRECTION_1LINE,
+      .DataSize = SPI_DATASIZE_8BIT,
+      .CLKPolarity = SPI_POLARITY_LOW,  // CPOL = 0
+      .CLKPhase = SPI_PHASE_1EDGE,      // CPHA = 0
+      .NSS = SPI_NSS_SOFT,
+      .BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4, // 6 MHz
+      .FirstBit = SPI_FIRSTBIT_MSB,
+    },
+  };
+  HAL_SPI_Init(&spi1);
+  GPIOA->BSRR = (1 << 3);   // IMU_CS high
+  HAL_GPIO_Init(GPIOA, &(GPIO_InitTypeDef){
+    .Mode = GPIO_MODE_OUTPUT_PP,
+    .Pin = (1 << 3),
+  });
+  HAL_GPIO_Init(GPIOA, &(GPIO_InitTypeDef){
+    .Mode = GPIO_MODE_AF_PP,
+    .Pin = (1 << 1) | (1 << 2),
+    .Alternate = 10,  // PA1 = SPI1_MOSI, PA2 = SPI1_SCK
+  });
+
+  delay_us(1000);
+  GPIOA->BSRR = (1 << 3) << 16;
+  // CTRL_REG4: SIM = 1
+  HAL_SPI_Transmit(&spi1, (uint8_t []){0x23, 0b00000001}, 2, HAL_MAX_DELAY);
+  GPIOA->BSRR = (1 << 3);
+  delay_us(1000);
+
+  uint8_t b = 0xaa;
+while (1) {
+  GPIOA->BSRR = (1 << 3) << 16;
+  HAL_SPI_Transmit(&spi1, (uint8_t []){0x80 | 0x0F}, 1, HAL_MAX_DELAY);
+  HAL_SPI_Receive(&spi1, &b, 1, HAL_MAX_DELAY);
+  GPIOA->BSRR = (1 << 3);
+  printf("WHO_AM_I = %u\n", (unsigned)b);
+  delay_us(1000000);
+}
+
+  while (1) { printf("!!\n"); delay_us(1000000); }
 }
 
 void NMI_Handler() { while (1) { } }
