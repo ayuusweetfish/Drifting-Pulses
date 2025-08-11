@@ -31,6 +31,16 @@ static inline void delay_us(uint32_t us)
 }
 
 static SPI_HandleTypeDef spi1;
+static DMA_HandleTypeDef dma1_ch1;
+
+#define N_HALF_BUF 512
+static uint16_t audio_buf[N_HALF_BUF * 2];
+
+static void refill_buffer(uint16_t *buf)
+{
+  for (int i = 0; i < N_HALF_BUF; i++)
+    buf[i] = (i % 64 < 32) ? 0x10 : 0;
+}
 
 #pragma GCC push_options
 #pragma GCC optimize("O3")
@@ -109,12 +119,77 @@ int main()
   HAL_TIM_PWM_Start(&tim3, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&tim3, TIM_CHANNEL_3);
 
-  while (1) {
+  while (0) {
     for (int i = 0; i < 4096; i += 8) {
       TIM3->CCR3 = i;
       HAL_Delay(4);
     }
   }
+}
+
+  // ============ Audio output ============ //
+{
+  __HAL_RCC_TIM17_CLK_ENABLE();
+  TIM_HandleTypeDef tim17 = {
+    .Instance = TIM17,
+    .Init = {
+      .Prescaler = 1 - 1,   // 24 MHz
+      .CounterMode = TIM_COUNTERMODE_DOWN,
+      .Period = 1024,       // 24 kHz
+      .ClockDivision = TIM_CLOCKDIVISION_DIV1,
+    },
+  };
+
+  HAL_GPIO_Init(GPIOA, &(GPIO_InitTypeDef){
+    .Mode = GPIO_MODE_AF_PP,
+    .Pin = (1 << 7),
+    .Alternate = 5,   // PA7 = TIM17_CH1
+    .Speed = GPIO_SPEED_FREQ_HIGH,
+  });
+  HAL_TIM_PWM_Init(&tim17);
+  HAL_TIM_PWM_ConfigChannel(&tim17, &(TIM_OC_InitTypeDef){
+    .OCMode = TIM_OCMODE_PWM1,
+    .OCPolarity = TIM_OCPOLARITY_HIGH,
+  }, TIM_CHANNEL_1);
+  // TIM17->CCR1 = 512;
+  // HAL_TIM_PWM_Start_DMA(&tim17, TIM_CHANNEL_1);
+
+  __HAL_RCC_DMA_CLK_ENABLE();
+  // Reference manual speficies that all channels map to all peripherals
+  dma1_ch1 = (DMA_HandleTypeDef){
+    .Instance = DMA1_Channel1,
+    .Init = {
+      .Direction = DMA_MEMORY_TO_PERIPH,
+      .PeriphInc = DMA_PINC_DISABLE,
+      .MemInc = DMA_MINC_ENABLE,
+      .PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD,
+      .MemDataAlignment = DMA_MDATAALIGN_HALFWORD,
+      .Mode = DMA_CIRCULAR,
+      .Priority = DMA_PRIORITY_MEDIUM,
+    },
+  };
+  HAL_DMA_Init(&dma1_ch1);
+  HAL_DMA_ChannelMap(&dma1_ch1, DMA_CHANNEL_MAP_TIM17_CH1);
+  __HAL_LINKDMA(&tim17, hdma[TIM_DMA_ID_CC1], dma1_ch1);
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 15, 1);
+  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+
+  int count = 0;
+  void dma_tx_half_cplt()
+  {
+    refill_buffer(audio_buf);
+  }
+  void dma_tx_cplt()
+  {
+    refill_buffer(audio_buf + N_HALF_BUF);
+    if (++count == 10) { printf("refill\n"); count = 0; }
+  }
+  HAL_TIM_PWM_Start_DMA(&tim17, TIM_CHANNEL_1, (void *)audio_buf, N_HALF_BUF * 2);
+  // Overwrite callbacks and handle the events ourselves
+  dma1_ch1.XferHalfCpltCallback = dma_tx_half_cplt;
+  dma1_ch1.XferCpltCallback = dma_tx_cplt;
+  dma1_ch1.XferErrorCallback = NULL;
+  dma1_ch1.XferAbortCallback = NULL;
 }
 
   // ============ IMU SC7A20 ============ //
@@ -215,7 +290,10 @@ void RCC_IRQHandler() { while (1) { } }
 void EXTI0_1_IRQHandler() { while (1) { } }
 void EXTI2_3_IRQHandler() { while (1) { } }
 void EXTI4_15_IRQHandler() { while (1) { } }
-void DMA1_Channel1_IRQHandler() { while (1) { } }
+void DMA1_Channel1_IRQHandler()
+{
+  HAL_DMA_IRQHandler(&dma1_ch1);
+}
 void DMA1_Channel2_3_IRQHandler() { while (1) { } }
 void ADC_COMP_IRQHandler() { while (1) { } }
 void TIM1_BRK_UP_TRG_COM_IRQHandler() { while (1) { } }
