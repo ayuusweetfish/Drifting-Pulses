@@ -61,6 +61,7 @@ print(','.join('%d' % round(511.5 + 512 * 0.7 * (1 - 4 * abs(0.5 - i / 64))) for
   static uint32_t n_cycles = 0;
   for (int i = 0; i < N_HALF_BUF; i++) {
     buf[i] = (n_cycles < 366 ? sine_table : tri_table)[phase];
+    if (n_cycles >= 50) buf[i] = 0;
     phase += 2;
     if (phase >= 64) {
       phase -= 64;
@@ -224,6 +225,47 @@ while (0) {
   dma1_ch1.XferCpltCallback = dma_tx_cplt;
   dma1_ch1.XferErrorCallback = NULL;
   dma1_ch1.XferAbortCallback = NULL;
+}
+
+  TIM3->CCR3 = 3072;
+  TIM3->CCR2 = 3072;
+
+  // ============ ADC ============ //
+{
+  HAL_GPIO_Init(GPIOA, &(GPIO_InitTypeDef){
+    .Mode = GPIO_MODE_ANALOG,
+    .Pin = (1 << 0),
+  });
+
+  __HAL_RCC_ADC_CLK_ENABLE();
+  ADC_HandleTypeDef adc1 = (ADC_HandleTypeDef){
+    .Instance = ADC1,
+    .Init = {
+      .ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2,
+      .Resolution = ADC_RESOLUTION_12B,
+      .DataAlign = ADC_DATAALIGN_RIGHT,
+      .ScanConvMode = ADC_SCAN_DIRECTION_FORWARD,
+      .EOCSelection = ADC_EOC_SINGLE_CONV,
+      .SamplingTimeCommon = ADC_SAMPLETIME_239CYCLES_5,
+    },
+  };
+  HAL_ADC_Init(&adc1);
+  HAL_ADC_Calibration_Start(&adc1);
+  HAL_ADC_ConfigChannel(&adc1, &(ADC_ChannelConfTypeDef){
+    .Channel = ADC_CHANNEL_0,
+    .Rank = ADC_RANK_CHANNEL_NUMBER,
+    .SamplingTime = ADC_SAMPLETIME_239CYCLES_5, // Obsolete
+  });
+  HAL_ADC_Start(&adc1);
+  HAL_ADC_PollForConversion(&adc1, HAL_MAX_DELAY);
+  uint32_t adc_value = HAL_ADC_GetValue(&adc1);
+  HAL_ADC_Stop(&adc1);
+  HAL_ADC_DeInit(&adc1);
+  __HAL_RCC_ADC_CLK_DISABLE();
+  while (1) {
+    printf("%u\n", (unsigned)adc_value);
+    HAL_Delay(1000);
+  }
 }
 
   // ============ IMU SC7A20 ============ //
