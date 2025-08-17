@@ -341,6 +341,13 @@ if (0) {
     return i - 1;
   }
 
+  int process(uint32_t m) {
+    return max(0, (3072 - sqrti(m)) * 3 / 2);
+  }
+  int process_test(int x) {
+    return max(0, abs(x - 17800) - 500);
+  }
+
   while (1) {
     uint8_t count;
     imu_read(0x2F, &count, 1); count &= 0x1F;
@@ -350,12 +357,9 @@ if (0) {
       int16_t x = (int16_t)(((uint16_t)a[2] << 8) | (uint16_t)a[1]);
       int16_t y = (int16_t)(((uint16_t)a[4] << 8) | (uint16_t)a[3]);
       int16_t z = (int16_t)(((uint16_t)a[6] << 8) | (uint16_t)a[5]);
-      printf("%6d %6d %6d\t", (int)x, (int)y, (int)z);
       uint32_t m = (int32_t)y * (int32_t)y + (int32_t)z * (int32_t)z;
-      printf("%8lu\n", m);
-      // TIM3->CCR3 = max(0, 4096 - abs(y));
-      // TIM3->CCR2 = max(0, 4096 - abs(z));
-      TIM3->CCR2 = max(0, 4096 - sqrti(m) / 4);
+      printf("%6d %6d %6d\t", (int)x, (int)y, (int)z); printf("%8d\n", sqrti(m));
+      TIM3->CCR2 = max(0, 4096 - process_test(x));
     }
     HAL_Delay(10);
   }
