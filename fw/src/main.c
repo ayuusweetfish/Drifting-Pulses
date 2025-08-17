@@ -65,7 +65,7 @@ print(','.join('%d' % round(511.4 * sin(i / 64 * pi * 2)) for i in range(64)))
       }
       e++;
     }
-    buf[i] = (512 + (int32_t)sine_table[phase] * envelope / 4096);
+    buf[i] = (512 + (int32_t)sine_table[phase] * envelope / 4096 / 2);
     phase += 2;
     if (phase >= 64) phase -= 64;
   }
