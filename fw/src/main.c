@@ -36,6 +36,9 @@ static DMA_HandleTypeDef dma1_ch1;
 #define N_HALF_BUF 512
 static uint16_t audio_buf[N_HALF_BUF * 2];
 
+// No data races due to `refill_buffer` running entirely in interrupt handler
+static volatile uint32_t tone_envelope = 0xFFFFFFFF;  // Reset to 0 at onset
+
 static void refill_buffer(uint16_t *buf)
 {
   // 64-sample cycle = 366 Hz tone
@@ -43,32 +46,30 @@ if (0) {
   for (int i = 0; i < N_HALF_BUF; i++)
     buf[i] = (i % 64 < 32) ? 0x80 : 0;
 } else {
-  static uint16_t sine_table[64] = {
+  static int16_t sine_table[64] = {
 /*
 from math import *
-print(','.join('%d' % round(511.5 + 512 * (0.7 * sin(i / 64 * pi * 2))) for i in range(64)))
+print(','.join('%d' % round(511.4 * sin(i / 64 * pi * 2)) for i in range(64)))
 */
-512,547,581,616,649,680,711,739,765,789,809,828,843,854,863,868,870,868,863,854,843,828,809,789,765,739,711,680,649,616,581,547,512,476,442,407,374,343,312,284,258,234,214,195,180,169,160,155,153,155,160,169,180,195,214,234,258,284,312,343,374,407,442,476
-  };
-  static uint16_t tri_table[64] = {
-/*
-from math import *
-print(','.join('%d' % round(511.5 + 512 * 0.7 * (1 - 4 * abs(0.5 - i / 64))) for i in range(64)))
-*/
-153,176,198,220,243,265,288,310,332,355,377,400,422,444,467,489,512,534,556,579,601,624,646,668,691,713,736,758,780,803,825,848,870,848,825,803,780,758,736,713,691,668,646,624,601,579,556,534,512,489,467,444,422,400,377,355,332,310,288,265,243,220,198,176
+0,50,100,148,196,241,284,324,362,395,425,451,472,489,502,509,511,509,502,489,472,451,425,395,362,324,284,241,196,148,100,50,0,-50,-100,-148,-196,-241,-284,-324,-362,-395,-425,-451,-472,-489,-502,-509,-511,-509,-502,-489,-472,-451,-425,-395,-362,-324,-284,-241,-196,-148,-100,-50
   };
   static uint32_t phase = 0;
-  static uint32_t n_cycles = 0;
+  uint32_t e = tone_envelope;
   for (int i = 0; i < N_HALF_BUF; i++) {
-    buf[i] = (n_cycles < 366 ? sine_table : tri_table)[phase];
-    if (n_cycles >= 50 || 1) buf[i] = 0;
-    phase += 2;
-    if (phase >= 64) {
-      phase -= 64;
-      n_cycles++;
-      if (n_cycles == 732) n_cycles = 0;
+    uint32_t envelope = 0;  // Gain due to envelope; [0, 4096]
+    if (e < 8192 + 100) {
+      if (e < 100) {
+        envelope = 4096 * e / 100;
+      } else {
+        envelope = 4096 - (e - 100) / 2;
+      }
+      e++;
     }
+    buf[i] = (512 + (int32_t)sine_table[phase] * envelope / 4096);
+    phase += 2;
+    if (phase >= 64) phase -= 64;
   }
+  tone_envelope = e;
 }
 }
 
@@ -225,9 +226,13 @@ while (0) {
   dma1_ch1.XferAbortCallback = NULL;
 }
 
-if (0) {
+if (1) {
   TIM3->CCR3 = 3072;
   TIM3->CCR2 = 3072;
+  while (1) {
+    tone_envelope = 0;  // Onset
+    HAL_Delay(1000);
+  }
 }
 
   // ============ ADC ============ //
