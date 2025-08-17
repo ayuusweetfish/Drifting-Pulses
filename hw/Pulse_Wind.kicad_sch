@@ -2921,6 +2921,18 @@
 			(embedded_fonts no)
 		)
 	)
+	(text "22p"
+		(exclude_from_sim no)
+		(at 207.264 117.094 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(italic yes)
+			)
+			(justify left)
+		)
+		(uuid "3f86f081-457b-4a68-84d5-ed830966ad72")
+	)
 	(text "NRST"
 		(exclude_from_sim no)
 		(at 123.444 54.102 0)
@@ -2932,6 +2944,18 @@
 			(justify left)
 		)
 		(uuid "45140437-5f8a-490d-8bae-53886875f19d")
+	)
+	(text "100k"
+		(exclude_from_sim no)
+		(at 207.264 122.174 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(italic yes)
+			)
+			(justify left)
+		)
+		(uuid "a0dd51a1-948a-4222-9303-5a657703858e")
 	)
 	(text "BOOT"
 		(exclude_from_sim no)
