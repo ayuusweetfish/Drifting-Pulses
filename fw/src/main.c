@@ -61,7 +61,7 @@ print(','.join('%d' % round(511.5 + 512 * 0.7 * (1 - 4 * abs(0.5 - i / 64))) for
   static uint32_t n_cycles = 0;
   for (int i = 0; i < N_HALF_BUF; i++) {
     buf[i] = (n_cycles < 366 ? sine_table : tri_table)[phase];
-    if (n_cycles >= 50) buf[i] = 0;
+    if (n_cycles >= 50 || 1) buf[i] = 0;
     phase += 2;
     if (phase >= 64) {
       phase -= 64;
@@ -146,9 +146,9 @@ while (0) {
     .OCMode = TIM_OCMODE_PWM1,
     .OCPolarity = TIM_OCPOLARITY_HIGH,
   }, TIM_CHANNEL_3);
-  TIM3->CCR1 = 4096;
-  TIM3->CCR2 = 4096;
-  TIM3->CCR3 = 4096;
+  TIM3->CCR1 = 4096;  // Blue
+  TIM3->CCR2 = 4096;  // Green
+  TIM3->CCR3 = 4096;  // Red
   HAL_TIM_PWM_Start(&tim3, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&tim3, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&tim3, TIM_CHANNEL_3);
@@ -185,8 +185,6 @@ while (0) {
     .OCMode = TIM_OCMODE_PWM1,
     .OCPolarity = TIM_OCPOLARITY_HIGH,
   }, TIM_CHANNEL_1);
-  // TIM17->CCR1 = 512;
-  // HAL_TIM_PWM_Start_DMA(&tim17, TIM_CHANNEL_1);
 
   __HAL_RCC_DMA_CLK_ENABLE();
   // Reference manual speficies that all channels map to all peripherals
@@ -208,7 +206,6 @@ while (0) {
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 15, 1);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
-  int count = 0;
   void dma_tx_half_cplt()
   {
     refill_buffer(audio_buf);
@@ -217,7 +214,8 @@ while (0) {
   {
     refill_buffer(audio_buf + N_HALF_BUF);
     // 24 kHz / 1024 samples
-    if (++count == 24) { printf("refill\n"); count = 0; }
+    static int count = 0;
+    if (0 && ++count == 24) { printf("refill\n"); count = 0; }
   }
   HAL_TIM_PWM_Start_DMA(&tim17, TIM_CHANNEL_1, (void *)audio_buf, N_HALF_BUF * 2);
   // Overwrite callbacks and handle the events ourselves
@@ -227,8 +225,10 @@ while (0) {
   dma1_ch1.XferAbortCallback = NULL;
 }
 
+if (0) {
   TIM3->CCR3 = 3072;
   TIM3->CCR2 = 3072;
+}
 
   // ============ ADC ============ //
 {
@@ -262,7 +262,7 @@ while (0) {
   HAL_ADC_Stop(&adc1);
   HAL_ADC_DeInit(&adc1);
   __HAL_RCC_ADC_CLK_DISABLE();
-  while (1) {
+  while (0) {
     printf("%u\n", (unsigned)adc_value);
     HAL_Delay(1000);
   }
@@ -332,17 +332,32 @@ while (0) {
   imu_write(0x24, 0b01000000);  // CTRL_REG5: FIFO_EN = 1
   imu_write(0x2E, 0b11000000);  // FIFO_CTRL_REG: FM = FIFO mode
 
+  int abs(int x) { return x < 0 ? -x : x; }
+  int max(int a, int b) { return a > b ? a : b; }
+  int sqrti(uint32_t x) {
+    // TODO: Optimize?
+    uint32_t i = 1;
+    while (i * i <= x) i++;
+    return i - 1;
+  }
+
   while (1) {
     uint8_t count;
     imu_read(0x2F, &count, 1); count &= 0x1F;
     uint8_t a[7];   // SC7A20 asks for a 7-byte read, unlike ST's 6-byte
     for (int i = 0; i < count; i++) {
       imu_read(0x27, a, 7);
-      uint16_t x = ((uint16_t)a[2] << 8) | a[1];
-      uint16_t y = ((uint16_t)a[4] << 8) | a[3];
-      uint16_t z = ((uint16_t)a[6] << 8) | a[5];
+      int16_t x = (int16_t)(((uint16_t)a[2] << 8) | (uint16_t)a[1]);
+      int16_t y = (int16_t)(((uint16_t)a[4] << 8) | (uint16_t)a[3]);
+      int16_t z = (int16_t)(((uint16_t)a[6] << 8) | (uint16_t)a[5]);
+      printf("%6d %6d %6d\t", (int)x, (int)y, (int)z);
+      uint32_t m = (int32_t)y * (int32_t)y + (int32_t)z * (int32_t)z;
+      printf("%8lu\n", m);
+      // TIM3->CCR3 = max(0, 4096 - abs(y));
+      // TIM3->CCR2 = max(0, 4096 - abs(z));
+      TIM3->CCR2 = max(0, 4096 - sqrti(m) / 4);
     }
-    HAL_Delay(100);
+    HAL_Delay(10);
   }
 
   // ============ LEDS ============ //
