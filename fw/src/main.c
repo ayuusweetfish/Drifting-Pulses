@@ -153,13 +153,6 @@ while (0) {
   HAL_TIM_PWM_Start(&tim3, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&tim3, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&tim3, TIM_CHANNEL_3);
-
-  int abs(int x) { return x < 0 ? -x : x; }
-  while (1) {
-    for (int i = 0; i <= 8192; i += 8) { TIM3->CCR3 = 4096 - abs(4096 - i); HAL_Delay(4); }
-    for (int i = 0; i <= 8192; i += 8) { TIM3->CCR2 = 4096 - abs(4096 - i); HAL_Delay(4); }
-    for (int i = 0; i <= 8192; i += 8) { TIM3->CCR1 = 4096 - abs(4096 - i); HAL_Delay(4); }
-  }
 }
 
   // ============ Audio output ============ //
@@ -227,11 +220,12 @@ while (0) {
 }
 
 if (1) {
-  TIM3->CCR3 = 3072;
-  TIM3->CCR2 = 3072;
+  int abs(int x) { return x < 0 ? -x : x; }
   while (1) {
+    for (int i = 0; i <= 8192; i += 8) { TIM3->CCR3 = 4096 - abs(4096 - i); HAL_Delay(4); }
+    for (int i = 0; i <= 8192; i += 8) { TIM3->CCR2 = 4096 - abs(4096 - i); HAL_Delay(4); }
+    for (int i = 0; i <= 8192; i += 8) { TIM3->CCR1 = 4096 - abs(4096 - i); HAL_Delay(4); }
     tone_envelope = 0;  // Onset
-    HAL_Delay(1000);
   }
 }
 
@@ -301,6 +295,7 @@ if (1) {
 
   int abs(int x) { return x < 0 ? -x : x; }
   int max(int a, int b) { return a > b ? a : b; }
+  int min(int a, int b) { return a < b ? a : b; }
   int sqrti(uint32_t x) {
     // TODO: Optimize?
     uint32_t i = 1;
@@ -326,7 +321,7 @@ if (1) {
       int16_t z = (int16_t)(((uint16_t)a[6] << 8) | (uint16_t)a[5]);
       uint32_t m = (int32_t)y * (int32_t)y + (int32_t)z * (int32_t)z;
       printf("%6d %6d %6d\t", (int)x, (int)y, (int)z); printf("%8d\n", sqrti(m));
-      TIM3->CCR2 = max(0, 4096 - process_test(x));
+      TIM3->CCR2 = min(4096, process_test(x));
     }
     HAL_Delay(10);
   }
