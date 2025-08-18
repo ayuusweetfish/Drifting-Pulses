@@ -222,10 +222,18 @@ while (0) {
 if (1) {
   int abs(int x) { return x < 0 ? -x : x; }
   while (1) {
-    for (int i = 0; i <= 8192; i += 8) { TIM3->CCR3 = 4096 - abs(4096 - i); HAL_Delay(4); }
-    for (int i = 0; i <= 8192; i += 8) { TIM3->CCR2 = 4096 - abs(4096 - i); HAL_Delay(4); }
-    for (int i = 0; i <= 8192; i += 8) { TIM3->CCR1 = 4096 - abs(4096 - i); HAL_Delay(4); }
-    tone_envelope = 0;  // Onset
+    for (int ch = 0; ch < 3; ch++) {
+      for (int i = 0; i <= 8192; i += 8) {
+        int value = 4096 - abs(4096 - i);
+        switch (ch) {
+          case 0: TIM3->CCR3 = value; break;
+          case 1: TIM3->CCR2 = value; break;
+          case 2: TIM3->CCR1 = value; break;
+        }
+        HAL_Delay(4);
+        if (i == 0 || i == 4096) tone_envelope = 0; // Note onset
+      }
+    }
   }
 }
 
