@@ -147,18 +147,18 @@ while (0) {
     .OCMode = TIM_OCMODE_PWM1,
     .OCPolarity = TIM_OCPOLARITY_HIGH,
   }, TIM_CHANNEL_3);
-  TIM3->CCR1 = 4096;  // Blue
-  TIM3->CCR2 = 4096;  // Green
-  TIM3->CCR3 = 4096;  // Red
+  TIM3->CCR1 = 0; // Blue
+  TIM3->CCR2 = 0; // Green
+  TIM3->CCR3 = 0; // Red
   HAL_TIM_PWM_Start(&tim3, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&tim3, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&tim3, TIM_CHANNEL_3);
 
-  while (0) {
-    for (int i = 0; i < 4096; i += 8) {
-      TIM3->CCR3 = i;
-      HAL_Delay(4);
-    }
+  int abs(int x) { return x < 0 ? -x : x; }
+  while (1) {
+    for (int i = 0; i <= 8192; i += 8) { TIM3->CCR3 = 4096 - abs(4096 - i); HAL_Delay(4); }
+    for (int i = 0; i <= 8192; i += 8) { TIM3->CCR2 = 4096 - abs(4096 - i); HAL_Delay(4); }
+    for (int i = 0; i <= 8192; i += 8) { TIM3->CCR1 = 4096 - abs(4096 - i); HAL_Delay(4); }
   }
 }
 
