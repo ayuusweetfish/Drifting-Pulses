@@ -235,44 +235,6 @@ if (1) {
   }
 }
 
-  // ============ ADC ============ //
-{
-  HAL_GPIO_Init(GPIOA, &(GPIO_InitTypeDef){
-    .Mode = GPIO_MODE_ANALOG,
-    .Pin = (1 << 0),
-  });
-
-  __HAL_RCC_ADC_CLK_ENABLE();
-  ADC_HandleTypeDef adc1 = (ADC_HandleTypeDef){
-    .Instance = ADC1,
-    .Init = {
-      .ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2,
-      .Resolution = ADC_RESOLUTION_12B,
-      .DataAlign = ADC_DATAALIGN_RIGHT,
-      .ScanConvMode = ADC_SCAN_DIRECTION_FORWARD,
-      .EOCSelection = ADC_EOC_SINGLE_CONV,
-      .SamplingTimeCommon = ADC_SAMPLETIME_239CYCLES_5,
-    },
-  };
-  HAL_ADC_Init(&adc1);
-  HAL_ADC_Calibration_Start(&adc1);
-  HAL_ADC_ConfigChannel(&adc1, &(ADC_ChannelConfTypeDef){
-    .Channel = ADC_CHANNEL_0,
-    .Rank = ADC_RANK_CHANNEL_NUMBER,
-    .SamplingTime = ADC_SAMPLETIME_239CYCLES_5, // Obsolete
-  });
-  HAL_ADC_Start(&adc1);
-  HAL_ADC_PollForConversion(&adc1, HAL_MAX_DELAY);
-  uint32_t adc_value = HAL_ADC_GetValue(&adc1);
-  HAL_ADC_Stop(&adc1);
-  HAL_ADC_DeInit(&adc1);
-  __HAL_RCC_ADC_CLK_DISABLE();
-  while (0) {
-    printf("%u\n", (unsigned)adc_value);
-    HAL_Delay(1000);
-  }
-}
-
   // ============ IMU SC7A20 ============ //
 {
   __HAL_RCC_SPI1_CLK_ENABLE();
