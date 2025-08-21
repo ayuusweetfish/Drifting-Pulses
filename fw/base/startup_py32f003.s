@@ -249,15 +249,6 @@ g_pfnVectors:
   .weak      USART2_IRQHandler                
   .thumb_set USART2_IRQHandler,Default_Handler
 
-// Silence linker warnings
-// These syscalls are not used; calling functions in libc are garbage-collected.
-// If other entries referencing `Default_Handler` are overwritten by strong symbols,
-// the `.text.Default_Handler` section is also garbage-collected.
-  .weak      _read
-  .thumb_set _read, Default_Handler
-  .weak      _write
-  .thumb_set _write, Default_Handler
-  .weak      _lseek
-  .thumb_set _lseek, Default_Handler
-  .weak      _close
-  .thumb_set _close, Default_Handler
+// _sbrk is not used with well-behaved vsnprintf() calls
+  .weak      _sbrk
+  .thumb_set _sbrk, Default_Handler
