@@ -50,8 +50,8 @@ ADIRS		:= src
 AFILES		:= 
 
 # Include paths
-INCLUDES	:= PY32F0xx_Firmware_V1.4.7/Drivers/CMSIS/Include \
-			PY32F0xx_Firmware_V1.4.7/Drivers/CMSIS/Device/PY32F0xx/Include \
+INCLUDES	:= base/PY32F0xx_Firmware_V1.4.7/Drivers/CMSIS/Include \
+			base/PY32F0xx_Firmware_V1.4.7/Drivers/CMSIS/Device/PY32F0xx/Include \
 			src
 
 ##### Library Paths ############
@@ -63,22 +63,22 @@ JLINK_DEVICE	?= $(shell echo $(MCU_TYPE) | tr '[:lower:]' '[:upper:]')
 # PyOCD device (Lowercases)
 PYOCD_DEVICE	?= $(shell echo $(MCU_TYPE) | tr '[:upper:]' '[:lower:]')
 # Link descript file: 
-LDSCRIPT		= rt/$(PYOCD_DEVICE).ld
+LDSCRIPT		= base/$(PYOCD_DEVICE).ld
 
 
 # PY32F002A,003,030 >>>
-CFILES		+= PY32F0xx_Firmware_V1.4.7/Drivers/CMSIS/Device/PY32F0xx/Source/system_py32f0xx.c
+CFILES		+= base/PY32F0xx_Firmware_V1.4.7/Drivers/CMSIS/Device/PY32F0xx/Source/system_py32f0xx.c
 
 ifeq ($(USE_LL_LIB),y)
-CDIRS		+= PY32F0xx_Firmware_V1.4.7/Drivers/PY32F0xx_LL_Driver/Src
-INCLUDES	+= PY32F0xx_Firmware_V1.4.7/Drivers/PY32F0xx_LL_Driver/Inc
+CDIRS		+= base/PY32F0xx_Firmware_V1.4.7/Drivers/PY32F0xx_LL_Driver/Src
+INCLUDES	+= base/PY32F0xx_Firmware_V1.4.7/Drivers/PY32F0xx_LL_Driver/Inc
 LIB_FLAGS   += USE_FULL_LL_DRIVER
 else
-CDIRS		+= PY32F0xx_Firmware_V1.4.7/Drivers/PY32F0xx_HAL_Driver/Src
-INCLUDES	+= PY32F0xx_Firmware_V1.4.7/Drivers/PY32F0xx_HAL_Driver/Inc
+CDIRS		+= base/PY32F0xx_Firmware_V1.4.7/Drivers/PY32F0xx_HAL_Driver/Src
+INCLUDES	+= base/PY32F0xx_Firmware_V1.4.7/Drivers/PY32F0xx_HAL_Driver/Inc
 endif
 # Startup file
-AFILES	:= rt/startup_py32f003.s
+AFILES	:= base/startup_py32f003.s
 # PY32F002A,003,030 <<<
 
 # 'make V=1' will show all compiler calls.
