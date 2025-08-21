@@ -5,7 +5,6 @@
 #include <stdint.h>
 
 // #define RELEASE
-
 #include "debug_printf.h"
 
 static void spin_delay(uint32_t cycles)
@@ -24,7 +23,6 @@ static void spin_delay(uint32_t cycles)
     : "cc"
   );
 }
-// __attribute__ ((section(".RamFunc")))
 static inline void delay_us(uint32_t us)
 {
   spin_delay(us * 24);
@@ -41,11 +39,6 @@ static volatile uint32_t tone_envelope = 0xFFFFFFFF;  // Reset to 0 at onset
 
 static void refill_buffer(uint16_t *buf)
 {
-  // 64-sample cycle = 366 Hz tone
-if (0) {
-  for (int i = 0; i < N_HALF_BUF; i++)
-    buf[i] = (i % 64 < 32) ? 0x80 : 0;
-} else {
   static int16_t sine_table[64] = {
 /*
 from math import *
@@ -70,7 +63,6 @@ print(','.join('%d' % round(511.4 * sin(i / 64 * pi * 2)) for i in range(64)))
     if (phase >= 64) phase -= 64;
   }
   tone_envelope = e;
-}
 }
 
 #pragma GCC push_options
@@ -219,7 +211,7 @@ while (0) {
   dma1_ch1.XferAbortCallback = NULL;
 }
 
-if (1) {
+if (0) {
   int abs(int x) { return x < 0 ? -x : x; }
   while (1) {
     for (int ch = 0; ch < 3; ch++) {
@@ -295,28 +287,12 @@ if (1) {
     if (b == 0x11) break;
     HAL_Delay(1000);
   }
+  printf("IMU check successful\n");
 
   imu_write(0x20, 0b01010111);  // CTRL_REG1: ODR = 100 Hz, Z/Y/Xen = 1
   imu_write(0x23, 0b10001001);  // CTRL_REG4: BDU = 1, HR = 1
   imu_write(0x24, 0b01000000);  // CTRL_REG5: FIFO_EN = 1
   imu_write(0x2E, 0b11000000);  // FIFO_CTRL_REG: FM = FIFO mode
-
-  int abs(int x) { return x < 0 ? -x : x; }
-  int max(int a, int b) { return a > b ? a : b; }
-  int min(int a, int b) { return a < b ? a : b; }
-  int sqrti(uint32_t x) {
-    // TODO: Optimize?
-    uint32_t i = 1;
-    while (i * i <= x) i++;
-    return i - 1;
-  }
-
-  int process(uint32_t m) {
-    return max(0, (3072 - sqrti(m)) * 3 / 2);
-  }
-  int process_test(int x) {
-    return max(0, abs(x - 17800) - 500);
-  }
 
   while (1) {
     uint8_t count;
@@ -328,8 +304,7 @@ if (1) {
       int16_t y = (int16_t)(((uint16_t)a[4] << 8) | (uint16_t)a[3]);
       int16_t z = (int16_t)(((uint16_t)a[6] << 8) | (uint16_t)a[5]);
       uint32_t m = (int32_t)y * (int32_t)y + (int32_t)z * (int32_t)z;
-      printf("%6d %6d %6d\t", (int)x, (int)y, (int)z); printf("%8d\n", sqrti(m));
-      TIM3->CCR2 = min(4096, process_test(x));
+      printf("%6d %6d %6d %9u\n", (int)x, (int)y, (int)z, (unsigned)m);
     }
     HAL_Delay(10);
   }
