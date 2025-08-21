@@ -295,6 +295,11 @@ if (0) {
   imu_write(0x24, 0b01000000);  // CTRL_REG5: FIFO_EN = 1
   imu_write(0x2E, 0b11000000);  // FIFO_CTRL_REG: FM = FIFO mode
 
+  int16_t x0 = 0, y0 = 0, z0 = 0;
+  bool pat = false;
+  unsigned in_pat = 0;
+  unsigned cooldown = 100;  // TODO: Is this necessary?
+
   while (1) {
     uint8_t count;
     imu_read(0x2F, &count, 1); count &= 0x1F;
@@ -304,9 +309,26 @@ if (0) {
       int16_t x = (int16_t)(((uint16_t)a[2] << 8) | (uint16_t)a[1]);
       int16_t y = (int16_t)(((uint16_t)a[4] << 8) | (uint16_t)a[3]);
       int16_t z = (int16_t)(((uint16_t)a[6] << 8) | (uint16_t)a[5]);
-      uint32_t m = (int32_t)y * (int32_t)y + (int32_t)z * (int32_t)z;
-      printf("%6d %6d %6d %9u\n", (int)x, (int)y, (int)z, (unsigned)m);
+      x0 = x0 + (x - x0) / 4;
+      y0 = y0 + (y - y0) / 4;
+      z0 = z0 + (z - z0) / 4;
+      x -= x0;
+      y -= y0;
+      z -= z0;
+      uint32_t m = (int32_t)x * x + (int32_t)y * y + (int32_t)z * z;
+      if (m >= 1000000 && !pat && !in_pat && cooldown == 0) {
+        pat = true;
+        cooldown = 30;
+        in_pat = 20;
+      }
+      if (in_pat > 0) {
+        if (m < 500000) in_pat--;
+        else if (in_pat <= 20) in_pat++;
+      }
+      if (cooldown > 0) cooldown--;
+      // printf("%6d %6d %6d %9u\n", (int)x, (int)y, (int)z, (unsigned)m);
     }
+    if (pat) { printf("!\n"); pat = false; }
     HAL_Delay(10);
   }
 
