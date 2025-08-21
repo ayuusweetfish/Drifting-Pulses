@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MONITOR_RESET="monitor reset"
+MONITOR_RESET="monitor reset halt"
 
 if [ "$1" == "c" ]; then
   MONITOR_RESET=
@@ -20,6 +20,11 @@ define hookpost-run
 end
 set pagination off
 target extended-remote localhost:3333
+
+define r
+  monitor reset halt
+  c
+end
 
 b debug_trap_line
 commands

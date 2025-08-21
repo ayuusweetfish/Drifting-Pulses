@@ -96,10 +96,11 @@ int main()
 
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
-while (0) {
   printf("sysclk = %lu Hz\n", HAL_RCC_GetSysClockFreq());
-  delay_us(1000000);
-}
+  while (0) {   // Test usage
+    delay_us(1000000);
+    printf("ticks = %lu\n", HAL_GetTick());
+  }
 
   // ============ LED ============ //
 {

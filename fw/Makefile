@@ -207,18 +207,17 @@ flash: all
 ifeq ($(FLASH_PROGRM),jlink)
 	# $(JLINKEXE) -device $(JLINK_DEVICE) -if swd -speed 4000 -JLinkScriptFile $(TOP)/Misc/jlink-script -CommanderScript $(TOP)/Misc/jlink-command
 else ifeq ($(FLASH_PROGRM),pyocd)
-	$(PYOCD_EXE) erase -t $(PYOCD_DEVICE) --chip --config $(TOP)/debug/pyocd.yaml
-	$(PYOCD_EXE) load $(BDIR)/$(PROJECT).hex -t $(PYOCD_DEVICE) --config $(TOP)/debug/pyocd.yaml
+	$(PYOCD_EXE) cmd -v -c 'erase; load $(BDIR)/$(PROJECT).hex' -t $(PYOCD_DEVICE) --config $(TOP)/base/pyocd.yaml
 else
 	@echo "FLASH_PROGRM is invalid\n"
 endif
 
 print-uid:
 ifeq ($(FLASH_PROGRM),pyocd)
-	$(PYOCD_EXE) cmd -c 'read8 0x1fff0e00 16' -t $(PYOCD_DEVICE) --config $(TOP)/debug/pyocd.yaml
+	$(PYOCD_EXE) cmd -c 'read8 0x1fff0e00 16' -t $(PYOCD_DEVICE) --config $(TOP)/base/pyocd.yaml
 endif
 
 debug:
 ifeq ($(FLASH_PROGRM),pyocd)
-	$(PYOCD_EXE) gdb --elf $(BDIR)/$(PROJECT).elf -t $(PYOCD_DEVICE) --config $(TOP)/debug/pyocd.yaml --persist
+	$(PYOCD_EXE) gdb --elf $(BDIR)/$(PROJECT).elf -t $(PYOCD_DEVICE) --config $(TOP)/base/pyocd.yaml --persist
 endif
