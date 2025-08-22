@@ -150,6 +150,15 @@ int main()
 
   // ============ Audio output ============ //
 {
+  // PA12 = AUDIO_SD
+  GPIOA->BSRR = (1 << 12);  // High = disable
+  HAL_GPIO_Init(GPIOA, &(GPIO_InitTypeDef){
+    .Mode = GPIO_MODE_OUTPUT_PP,
+    .Pin = (1 << 12),
+  });
+}
+
+{
   __HAL_RCC_TIM17_CLK_ENABLE();
   TIM_HandleTypeDef tim17 = {
     .Instance = TIM17,
@@ -212,7 +221,7 @@ int main()
   dma1_ch1.XferAbortCallback = NULL;
 }
 
-if (0) {
+if (1) {
   int abs(int x) { return x < 0 ? -x : x; }
   while (1) {
     for (int ch = 0; ch < 3; ch++) {
@@ -225,6 +234,8 @@ if (0) {
         }
         HAL_Delay(4);
         if (i == 0 || i == 4096) tone_envelope = 0; // Note onset
+        if (i % 4096 == 3584) GPIOA->BSRR = (1 << 12) << 16;
+        else if (i % 4096 == 2048) GPIOA->BSRR = (1 << 12);
       }
     }
   }
