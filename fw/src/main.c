@@ -221,6 +221,17 @@ int main()
   dma1_ch1.XferAbortCallback = NULL;
 }
 
+while (1) {
+  TIM3->CCR3 = TIM3->CCR2 = TIM3->CCR1 = 2048;
+  GPIOA->BSRR = (1 << 12) << 16;
+  HAL_Delay(2000);
+  tone_envelope = 0;
+  HAL_Delay(1000);
+  tone_envelope = 0;
+  HAL_Delay(1000);
+  GPIOA->BSRR = (1 << 12);
+  HAL_Delay(2000);
+}
 if (1) {
   int abs(int x) { return x < 0 ? -x : x; }
   while (1) {
