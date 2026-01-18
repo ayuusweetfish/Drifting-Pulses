@@ -253,6 +253,7 @@ if (0) {
 }
 
   // ============ IMU SC7A20 ============ //
+  // Ref: STMicroelectronics LIS3DH
 {
   __HAL_RCC_SPI1_CLK_ENABLE();
   spi1 = (SPI_HandleTypeDef){
@@ -315,18 +316,34 @@ if (0) {
   imu_write(0x20, 0b01010111);  // CTRL_REG1: ODR = 100 Hz, Z/Y/Xen = 1
   imu_write(0x23, 0b10001001);  // CTRL_REG4: BDU = 1, HR = 1
   imu_write(0x24, 0b01000000);  // CTRL_REG5: FIFO_EN = 1
-  imu_write(0x2E, 0b11000000);  // FIFO_CTRL_REG: FM = FIFO mode
+  imu_write(0x2E, 0b11000000);  // FIFO_CTRL_REG: FM = Streaming mode
+                                // (FM = 0b01 results in unrecoverable hang?)
 
   int16_t x0 = 0, y0 = 0, z0 = 0;
-  bool pat = false;
   unsigned in_pat = 0;
-  unsigned cooldown = 100;  // TODO: Is this necessary?
+    // Tracks a continuous pat/movement to avoid repeated counts
+  unsigned cooldown = 100;
 
   uint32_t T = HAL_GetTick();
   int t = 0;
   int pitch = 0;
 
+  // Clear IMU FIFO to prevent excessive initial glitch
+  // There seems to be quirks...? Why FIFO still has 31 entries after readout?
   while (1) {
+    uint8_t count;
+    imu_read(0x2F, &count, 1); count &= 0x1F;
+    if (count < 31) break;
+    uint8_t a[7];   // SC7A20 asks for a 7-byte read, unlike ST's 6-byte
+    for (int i = 0; i < count; i++) {
+      imu_read(0x27, a, 7);
+    }
+  }
+  printf("IMU FIFO cleared\n");
+
+  while (1) {
+    bool pat = false;
+
     uint8_t count;
     imu_read(0x2F, &count, 1); count &= 0x1F;
     uint8_t a[7];   // SC7A20 asks for a 7-byte read, unlike ST's 6-byte
@@ -357,7 +374,7 @@ if (0) {
 
     if (pat) {
       pat = false;
-      printf("!\n");
+      printf("! %lu\n", HAL_GetTick());
       pitch = (pitch + 1) % 3;
       t = 0;
     }
