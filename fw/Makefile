@@ -140,7 +140,7 @@ $(BDIR)/pyocd.yml:
 	echo 'pack: [base/Puya.PY32F0xx_DFP.1.2.8.pack]' > $@
 
 flash: all $(BDIR)/pyocd.yml
-	$(PYOCD_EXE) cmd -v -c 'erase; load $(BDIR)/$(PROJECT).bin; reset' -t $(PYOCD_DEVICE) --config $(BDIR)/pyocd.yml
+	$(PYOCD_EXE) cmd -v -c 'reset halt; erase; load $(BDIR)/$(PROJECT).bin; reset' -t $(PYOCD_DEVICE) --config $(BDIR)/pyocd.yml
 
 debug: all
 	# make debug c=1
