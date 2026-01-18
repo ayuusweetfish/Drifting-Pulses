@@ -379,7 +379,7 @@ if (0) {
       t = 0;
     }
 
-    int intensity = (t < 100 ? (100 - t) * (100 - t) / 100 : 0);
+    int intensity = (t < 100 ? (100 - t) * (100 - t) * (100 - t) / 500 : 0);
     if (t < 10) intensity = intensity * t / 10;
     int tint[3] = {0};
     tint[pitch] = intensity;
