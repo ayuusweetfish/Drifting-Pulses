@@ -221,7 +221,7 @@ int main()
   dma1_ch1.XferAbortCallback = NULL;
 }
 
-while (1) {
+while (0) {
   TIM3->CCR3 = TIM3->CCR2 = TIM3->CCR1 = 2048;
   GPIOA->BSRR = (1 << 12) << 16;
   HAL_Delay(2000);
@@ -232,7 +232,7 @@ while (1) {
   GPIOA->BSRR = (1 << 12);
   HAL_Delay(2000);
 }
-if (1) {
+if (0) {
   int abs(int x) { return x < 0 ? -x : x; }
   while (1) {
     for (int ch = 0; ch < 3; ch++) {
@@ -322,6 +322,10 @@ if (1) {
   unsigned in_pat = 0;
   unsigned cooldown = 100;  // TODO: Is this necessary?
 
+  uint32_t T = HAL_GetTick();
+  int t = 0;
+  int pitch = 0;
+
   while (1) {
     uint8_t count;
     imu_read(0x2F, &count, 1); count &= 0x1F;
@@ -350,8 +354,26 @@ if (1) {
       if (cooldown > 0) cooldown--;
       // printf("%6d %6d %6d %9u\n", (int)x, (int)y, (int)z, (unsigned)m);
     }
-    if (pat) { printf("!\n"); pat = false; }
-    HAL_Delay(10);
+
+    if (pat) {
+      pat = false;
+      printf("!\n");
+      pitch = (pitch + 1) % 3;
+      t = 0;
+    }
+
+    int intensity = (t < 100 ? (100 - t) * (100 - t) / 100 : 0);
+    if (t < 10) intensity = intensity * t / 10;
+    int tint[3] = {0};
+    tint[pitch] = intensity;
+    TIM3->CCR3 = tint[0];
+    TIM3->CCR2 = tint[1];
+    TIM3->CCR1 = tint[2];
+    t++;
+    if (t == 200) t = 0;
+
+    while (HAL_GetTick() - T < 10) __WFI();
+    T += 10;
   }
 
   // ============ LEDS ============ //
