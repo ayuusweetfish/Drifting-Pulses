@@ -122,7 +122,7 @@ int main()
     .Instance = TIM3,
     .Init = {
       .Prescaler = 1 - 1,   // 24 MHz
-      .CounterMode = TIM_COUNTERMODE_DOWN,
+      .CounterMode = TIM_COUNTERMODE_UP,
       .Period = 4096,       // 6 kHz
       .ClockDivision = TIM_CLOCKDIVISION_DIV1,
     },
