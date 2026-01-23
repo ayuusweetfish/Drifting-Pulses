@@ -379,14 +379,38 @@ if (0)
     if (pat) {
       pat = false;
       printf("! %lu\n", HAL_GetTick());
-      pitch = (pitch + 1) % 3;
+      if ((pitch += 3) >= 10) pitch -= 10;
       t = 0;
     }
 
-    int intensity = (t < 100 ? (100 - t) * (100 - t) * (100 - t) / 500 : 0);
+    // Max duty 100^3 / 256 = 3906
+    uint32_t intensity = (t < 100 ? (100 - t) * (100 - t) * (100 - t) / 256 : 0);
     if (t < 10) intensity = intensity * t / 10;
-    int tint[3] = {0};
-    tint[pitch] = intensity;
+    uint32_t tint[3] = {0};
+    static uint8_t tints_seq[10][3] = {
+      {0xff, 0x00, 0x00},
+      {0xff, 0x99, 0x00},
+      {0xcc, 0xff, 0x00},
+      {0x33, 0xff, 0x00},
+      {0x00, 0xff, 0x66},
+      {0x00, 0xff, 0xff},
+      {0x00, 0x66, 0xff},
+      {0x33, 0x00, 0xff},
+      {0xcc, 0x00, 0xff},
+      {0xff, 0x00, 0x99},
+    };
+    uint32_t r = tints_seq[pitch][0];
+    uint32_t g = tints_seq[pitch][1];
+    uint32_t b = tints_seq[pitch][2];
+    // Scale down by at most 4/5
+    uint32_t total = r * r + g * g + b * b;
+    static const uint32_t BASE = 256 * 256 * 3 / 2;
+    static const uint32_t SCALE = 256 * 256 * 2;
+    if (total > BASE)
+      intensity = intensity + SCALE / (SCALE + total - BASE);
+    tint[0] = r * intensity / 256;
+    tint[1] = g * intensity / 256;
+    tint[2] = b * intensity / 256;
     TIM3->CCR3 = tint[0];
     TIM3->CCR2 = tint[1];
     TIM3->CCR1 = tint[2];
