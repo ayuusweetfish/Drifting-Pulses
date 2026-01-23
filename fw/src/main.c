@@ -232,6 +232,7 @@ while (0) {
   GPIOA->BSRR = (1 << 12);
   HAL_Delay(2000);
 }
+
 if (0) {
   int abs(int x) { return x < 0 ? -x : x; }
   while (1) {
@@ -341,6 +342,9 @@ if (0) {
   }
   printf("IMU FIFO cleared\n");
 
+if (0)
+  GPIOA->BSRR = (1 << 12) << 16;  // Enable by AUDIO_SD
+
   while (1) {
     bool pat = false;
 
@@ -386,6 +390,10 @@ if (0) {
     TIM3->CCR3 = tint[0];
     TIM3->CCR2 = tint[1];
     TIM3->CCR1 = tint[2];
+
+    if (t == 0) {
+      tone_envelope = 0;  // Note onset
+    }
     t++;
     if (t == 200) t = 0;
 
