@@ -1,5 +1,7 @@
 $fn = 120;
 
+eps = 0.1;
+
 H = 24;
 W_wall = 1.5;
 R_base = 30;
@@ -27,7 +29,9 @@ translate([0, 0, H_support]) {
     union() {
       difference() {
         cylinder(h = H_board, r = r(H_support) - W_wall / 2, center = false);
-        cylinder(h = H_board, r = R_board, center = false);
+        cylinder(h = H_board+eps, r = R_board, center = false);
+        rotate([0, 0, 45]) cube([r(H_support), r(H_support), H_board+eps], center = false);
+        rotate([0, 0, 225]) cube([r(H_support), r(H_support), H_board+eps], center = false);
       }
       translate([0, 0, -W_wall])
         cylinder(h = W_wall, r = r(H_support - W_wall) - W_wall / 2, center = false);
