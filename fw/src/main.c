@@ -221,6 +221,13 @@ int main()
   dma1_ch1.XferAbortCallback = NULL;
 }
 
+if (0) {
+  TIM3->CCR3 = 1000;
+  TIM3->CCR2 = 1000;
+  TIM3->CCR1 = 1000;
+  while (1) __WFI();
+}
+
 while (0) {
   TIM3->CCR3 = TIM3->CCR2 = TIM3->CCR1 = 2048;
   GPIOA->BSRR = (1 << 12) << 16;
