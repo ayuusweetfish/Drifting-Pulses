@@ -390,8 +390,8 @@ if (0)
       t = 0;
     }
 
-    // Max duty 100^3 / 256 = 3906
-    uint32_t intensity = (t < 100 ? (100 - t) * (100 - t) * (100 - t) / 256 : 0);
+    // Max duty 100^3 / 244 = 4096
+    uint32_t intensity = (t < 100 ? (100 - t) * (100 - t) * (100 - t) / 244 : 0);
     if (t < 10) intensity = intensity * t / 10;
     uint32_t tint[3] = {0};
     static uint8_t tints_seq[10][3] = {
