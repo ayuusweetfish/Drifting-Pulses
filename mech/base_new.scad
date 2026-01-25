@@ -14,28 +14,45 @@ function r(z) =
   + (R_top - R_base) * pow(z/H, 2);
 
 
-rotate_extrude()
-  polygon(concat(
-    [for (z = [0 : 0.1 : H]) [r(z), z]],
-    [for (z = [H : -0.1 : 0]) [r(z) - W_wall, z]]
-  ));
+module outer_shell() {
+  rotate_extrude()
+    polygon(concat(
+      [for (z = [0 : 0.1 : H]) [r(z), z]],
+      [for (z = [H : -0.1 : 0]) [r(z) - W_wall, z]]
+    ));
+}
 
-H_support = 15;
+H_support = 13.5;
 H_board = 1.2;
-R_board = 30.5;
+R_board = 30.2;
+R_support_opening = 27;   // Refer to battery holder's dimensions
 
-translate([0, 0, H_support]) {
-  difference() {
-    union() {
-      difference() {
-        cylinder(h = H_board, r = r(H_support) - W_wall / 2, center = false);
-        cylinder(h = H_board+eps, r = R_board, center = false);
-        rotate([0, 0, 45]) cube([r(H_support), r(H_support), H_board+eps], center = false);
-        rotate([0, 0, 225]) cube([r(H_support), r(H_support), H_board+eps], center = false);
+module support() {
+  translate([0, 0, H_support]) {
+    difference() {
+      union() {
+        difference() {
+          cylinder(h = H_board, r = r(H_support) - W_wall / 2, center = false);
+          cylinder(h = H_board+eps, r = R_board, center = false);
+          rotate([0, 0, 45]) cube([r(H_support), r(H_support), H_board+eps], center = false);
+          rotate([0, 0, 225]) cube([r(H_support), r(H_support), H_board+eps], center = false);
+        }
+        translate([0, 0, -W_wall])
+          cylinder(h = W_wall, r = r(H_support - W_wall) - W_wall / 2, center = false);
       }
-      translate([0, 0, -W_wall])
-        cylinder(h = W_wall, r = r(H_support - W_wall) - W_wall / 2, center = false);
+      translate([0, 0, -W_wall-eps])
+        cylinder(h = W_wall+eps*2, r = R_support_opening);
     }
-    cube([50, 15, 10], center = true);
   }
+}
+
+W_side_opening = 12;
+
+difference() {
+  union() {
+    outer_shell();
+    support();
+  }
+  translate([-W_side_opening/2, 0, H_support])
+    cube([W_side_opening, r(H_support), H], center = false);
 }
