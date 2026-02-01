@@ -25,11 +25,11 @@ CFILES		:=
 # Include paths
 INCLUDES	:= src
 
-CDIRS     += base/PY32F0xx_Firmware_V1.4.7/Drivers/PY32F0xx_HAL_Driver/Src
-INCLUDES  += base/PY32F0xx_Firmware_V1.4.7/Drivers/PY32F0xx_HAL_Driver/Inc
+CDIRS     += base/PY32F0xx_Firmware_V1.5.0/Drivers/PY32F0xx_HAL_Driver/Src
+INCLUDES  += base/PY32F0xx_Firmware_V1.5.0/Drivers/PY32F0xx_HAL_Driver/Inc
 INCLUDES  += \
-  base/PY32F0xx_Firmware_V1.4.7/Drivers/CMSIS/Include \
-  base/PY32F0xx_Firmware_V1.4.7/Drivers/CMSIS/Device/PY32F0xx/Include \
+  base/PY32F0xx_Firmware_V1.5.0/Drivers/CMSIS/Include \
+  base/PY32F0xx_Firmware_V1.5.0/Drivers/CMSIS/Device/PY32F0xx/Include \
 
 # ASM source folders
 ADIRS		:= src
@@ -41,7 +41,7 @@ AFILES		:=
 LDSCRIPT		= base/py32f003x6.ld
 
 
-CFILES	+= base/PY32F0xx_Firmware_V1.4.7/Drivers/CMSIS/Device/PY32F0xx/Source/system_py32f0xx.c
+CFILES	+= base/PY32F0xx_Firmware_V1.5.0/Drivers/CMSIS/Device/PY32F0xx/Source/system_py32f0xx.c
 AFILES	+= base/startup_py32f003.s
 
 # 'make V=1' will show all compiler calls.
